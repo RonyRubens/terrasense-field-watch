@@ -38,9 +38,10 @@ const items = [
 ]
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar()
+  const { state } = useSidebar()
   const location = useLocation()
   const currentPath = location.pathname
+  const isCollapsed = state === "collapsed"
 
   const isActive = (path: string) => {
     if (path === "/" && currentPath === "/") return true
@@ -55,15 +56,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={collapsed ? "w-14" : "w-64"}
-      collapsible
+      collapsible="icon"
     >
       <SidebarHeader className="border-b border-border p-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gradient-to-br from-terra-500 to-terra-600 rounded-lg flex items-center justify-center">
             <Sprout className="w-5 h-5 text-white" />
           </div>
-          {!collapsed && (
+          {!isCollapsed && (
             <div>
               <h2 className="text-lg font-bold text-terra-700">TerraSense</h2>
               <p className="text-xs text-muted-foreground">Monitoramento Agrícola</p>
@@ -82,7 +82,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} end className={getNavCls(item.url)}>
                       <item.icon className="mr-3 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!isCollapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -98,7 +98,7 @@ export function AppSidebar() {
             <SidebarMenuButton asChild>
               <NavLink to="/settings" className="hover:bg-terra-50 text-muted-foreground hover:text-terra-600">
                 <Settings className="mr-3 h-4 w-4" />
-                {!collapsed && <span>Configurações</span>}
+                {!isCollapsed && <span>Configurações</span>}
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>
