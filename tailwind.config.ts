@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,31 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Cores personalizadas para agricultura
+				terra: {
+					50: '#f0f9f0',
+					100: '#dcf2dc',
+					200: '#bce5bc',
+					300: '#8dd18d',
+					400: '#5cb85c',
+					500: '#3e9f3e',
+					600: '#2d7d2d',
+					700: '#236423',
+					800: '#1c4f1c',
+					900: '#164216'
+				},
+				nature: {
+					50: '#f8fafc',
+					100: '#f1f5f9',
+					200: '#e2e8f0',
+					300: '#94a3b8',
+					400: '#64748b',
+					500: '#475569',
+					600: '#334155',
+					700: '#1e293b',
+					800: '#0f172a',
+					900: '#020617'
 				}
 			},
 			borderRadius: {
@@ -84,11 +110,33 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					'0%': {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'pulse-grow': {
+					'0%, 100%': {
+						transform: 'scale(1)',
+						opacity: '1'
+					},
+					'50%': {
+						transform: 'scale(1.05)',
+						opacity: '0.8'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'pulse-grow': 'pulse-grow 2s ease-in-out infinite'
 			}
 		}
 	},
