@@ -10,6 +10,7 @@ import Analytics from "./pages/Analytics";
 import Crops from "./pages/Crops";
 import Weather from "./pages/Weather";
 import Irrigation from "./pages/Irrigation";
+import Alerts from "./pages/Alerts";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/crops" element={<Crops />} />
           <Route path="/weather" element={<Weather />} />
           <Route path="/irrigation" element={<Irrigation />} />
+          <Route path="/alerts" element={<Alerts />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
