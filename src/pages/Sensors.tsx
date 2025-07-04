@@ -53,7 +53,7 @@ const Sensors = () => {
         .from('leituras')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
       setLeituras(data || []);
@@ -64,8 +64,12 @@ const Sensors = () => {
     }
   };
 
-  const getUltmaLeitura = (sensorId: string) => {
+  const getUltimaLeitura = (sensorId: string) => {
     return leituras.find(leitura => leitura.sensor_id === sensorId);
+  };
+
+  const getLeiturasSensor = (sensorId: string) => {
+    return leituras.filter(leitura => leitura.sensor_id === sensorId);
   };
 
   const formatDate = (dateString: string) => {
@@ -81,6 +85,21 @@ const Sensors = () => {
     if (umidade < 30) return 'text-red-500';
     if (umidade < 60) return 'text-yellow-500';
     return 'text-green-500';
+  };
+
+  const getSensoresAtivos = () => {
+    return sensores.filter(s => s.ativo).length;
+  };
+
+  const getTotalLeituras = () => {
+    return leituras.length;
+  };
+
+  const getMediaUmidade = () => {
+    const leituraComUmidade = leituras.filter(l => l.umidade !== null);
+    if (leituraComUmidade.length === 0) return 0;
+    const soma = leituraComUmidade.reduce((acc, l) => acc + (l.umidade || 0), 0);
+    return Math.round(soma / leituraComUmidade.length);
   };
 
   if (loading) {
@@ -134,21 +153,7 @@ const Sensors = () => {
                     <div>
                       <p className="text-sm text-gray-600">Sensores Ativos</p>
                       <p className="text-2xl font-bold text-green-600">
-                        {sensores.filter(s => s.ativo).length}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <WifiOff className="w-5 h-5 text-red-600" />
-                    <div>
-                      <p className="text-sm text-gray-600">Sensores Inativos</p>
-                      <p className="text-2xl font-bold text-red-600">
-                        {sensores.filter(s => !s.ativo).length}
+                        {getSensoresAtivos()}
                       </p>
                     </div>
                   </div>
@@ -160,8 +165,22 @@ const Sensors = () => {
                   <div className="flex items-center space-x-2">
                     <Droplets className="w-5 h-5 text-blue-600" />
                     <div>
+                      <p className="text-sm text-gray-600">Média de Umidade</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {getMediaUmidade()}%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-5 h-5 text-purple-600" />
+                    <div>
                       <p className="text-sm text-gray-600">Total de Leituras</p>
-                      <p className="text-2xl font-bold">{leituras.length}</p>
+                      <p className="text-2xl font-bold">{getTotalLeituras()}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -171,7 +190,8 @@ const Sensors = () => {
             {/* Lista de sensores */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sensores.map((sensor) => {
-                const ultimaLeitura = getUltmaLeitura(sensor.id);
+                const ultimaLeitura = getUltimaLeitura(sensor.id);
+                const leiturasSensor = getLeiturasSensor(sensor.id);
                 
                 return (
                   <Card key={sensor.id} className="hover:shadow-lg transition-shadow">
@@ -197,15 +217,20 @@ const Sensors = () => {
                     
                     <CardContent>
                       <div className="space-y-4">
-                        {/* Umidade atual */}
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div className="flex items-center space-x-2">
-                            <Droplets className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm font-medium">Umidade</span>
+                        {/* Estatísticas das leituras */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="text-center p-2 bg-blue-50 rounded">
+                            <p className="text-xs text-gray-600">Leituras</p>
+                            <p className="text-lg font-bold text-blue-600">
+                              {leiturasSensor.length}
+                            </p>
                           </div>
-                          <span className={`text-xl font-bold ${getUmidadeColor(sensor.umidade)}`}>
-                            {sensor.umidade ? `${sensor.umidade}%` : 'N/A'}
-                          </span>
+                          <div className="text-center p-2 bg-green-50 rounded">
+                            <p className="text-xs text-gray-600">Umidade Atual</p>
+                            <p className={`text-lg font-bold ${getUmidadeColor(ultimaLeitura?.umidade)}`}>
+                              {ultimaLeitura?.umidade ? `${ultimaLeitura.umidade}%` : 'N/A'}
+                            </p>
+                          </div>
                         </div>
 
                         {/* Última leitura */}
@@ -227,9 +252,35 @@ const Sensors = () => {
                               </p>
                               {ultimaLeitura.epoch && (
                                 <p className="text-xs text-gray-500">
-                                  Epoch: {ultimaLeitura.epoch}
+                                  Timestamp: {ultimaLeitura.epoch}
                                 </p>
                               )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Histórico recente */}
+                        {leiturasSensor.length > 1 && (
+                          <div className="border-t pt-3">
+                            <p className="text-sm font-medium text-gray-700 mb-2">
+                              Histórico Recente
+                            </p>
+                            <div className="space-y-1 max-h-32 overflow-y-auto">
+                              {leiturasSensor.slice(1, 6).map((leitura) => (
+                                <div key={leitura.id} className="flex justify-between text-xs">
+                                  <span className="text-gray-500">
+                                    {new Date(leitura.created_at).toLocaleString('pt-BR', {
+                                      day: '2-digit',
+                                      month: '2-digit',
+                                      hour: '2-digit',
+                                      minute: '2-digit'
+                                    })}
+                                  </span>
+                                  <span className={getUmidadeColor(leitura.umidade)}>
+                                    {leitura.umidade ? `${leitura.umidade}%` : 'N/A'}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
