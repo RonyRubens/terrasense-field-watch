@@ -8,7 +8,8 @@ import {
   Thermometer, 
   Droplets,
   AlertTriangle,
-  Settings
+  Settings,
+  Satellite
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -32,6 +33,7 @@ const items = [
   { title: "Mapa das Culturas", url: "/map", icon: MapPin },
   { title: "Análises", url: "/analytics", icon: BarChart3 },
   { title: "Plantações", url: "/crops", icon: Sprout },
+  { title: "Sensores", url: "/sensors", icon: Satellite },
   { title: "Clima", url: "/weather", icon: Thermometer },
   { title: "Irrigação", url: "/irrigation", icon: Droplets },
   { title: "Alertas", url: "/alerts", icon: AlertTriangle },

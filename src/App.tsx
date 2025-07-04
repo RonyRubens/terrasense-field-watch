@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Map from "./pages/Map";
 import Analytics from "./pages/Analytics";
 import Crops from "./pages/Crops";
+import Sensors from "./pages/Sensors";
 import Weather from "./pages/Weather";
 import Irrigation from "./pages/Irrigation";
 import Alerts from "./pages/Alerts";
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/map" element={<Map />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/crops" element={<Crops />} />
+          <Route path="/sensors" element={<Sensors />} />
           <Route path="/weather" element={<Weather />} />
           <Route path="/irrigation" element={<Irrigation />} />
           <Route path="/alerts" element={<Alerts />} />
