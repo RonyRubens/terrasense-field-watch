@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { 
   Home, 
@@ -9,7 +8,8 @@ import {
   Droplets,
   AlertTriangle,
   Settings,
-  Satellite
+  Satellite,
+  Building
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -37,6 +37,7 @@ const items = [
   { title: "Clima", url: "/weather", icon: Thermometer },
   { title: "Irrigação", url: "/irrigation", icon: Droplets },
   { title: "Alertas", url: "/alerts", icon: AlertTriangle },
+  { title: "iTwin Viewer", url: "/itwin-viewer", icon: Building },
 ]
 
 export function AppSidebar() {
