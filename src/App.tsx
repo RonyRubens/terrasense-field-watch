@@ -13,7 +13,6 @@ import Weather from "./pages/Weather";
 import Irrigation from "./pages/Irrigation";
 import Alerts from "./pages/Alerts";
 import ItwinViewer from "./pages/ItwinViewer";
-import SigninCallback from "./pages/SigninCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,7 +33,6 @@ const App = () => (
           <Route path="/irrigation" element={<Irrigation />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/itwin-viewer" element={<ItwinViewer />} />
-          <Route path="/signin-callback" element={<SigninCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
