@@ -83,7 +83,6 @@ const ItwinViewer = () => {
                 iModelId={iModelId}
                 authClient={authClient}
                 enablePerformanceMonitors={true}
-                theme="os"
               />
             )}
           </div>

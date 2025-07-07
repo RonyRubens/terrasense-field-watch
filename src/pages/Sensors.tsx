@@ -1,11 +1,12 @@
-
 import { useState, useEffect } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Droplets, Wifi, WifiOff, Calendar, Activity } from "lucide-react";
+import { Droplets, Wifi, WifiOff, Calendar, Activity, Plus } from "lucide-react";
+import AddSensorForm from "@/components/AddSensorForm";
 
 interface Sensor {
   id: string;
@@ -27,6 +28,7 @@ const Sensors = () => {
   const [sensores, setSensores] = useState<Sensor[]>([]);
   const [leituras, setLeituras] = useState<Leitura[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     fetchSensores();
@@ -62,6 +64,11 @@ const Sensors = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSensorAdded = () => {
+    fetchSensores();
+    fetchLeituras();
   };
 
   const getUltimaLeitura = (sensorId: string) => {
@@ -124,13 +131,34 @@ const Sensors = () => {
         <main className="flex-1 p-6 bg-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Sensores IoT
-              </h1>
-              <p className="text-gray-600">
-                Monitoramento em tempo real dos sensores de umidade
-              </p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    Sensores IoT
+                  </h1>
+                  <p className="text-gray-600">
+                    Monitoramento em tempo real dos sensores de umidade
+                  </p>
+                </div>
+                <Button 
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-terra-600 hover:bg-terra-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Sensor
+                </Button>
+              </div>
             </div>
+
+            {/* Formulário de adicionar sensor */}
+            {showAddForm && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <AddSensorForm 
+                  onSensorAdded={handleSensorAdded}
+                  onClose={() => setShowAddForm(false)}
+                />
+              </div>
+            )}
 
             {/* Resumo dos sensores */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
@@ -298,9 +326,16 @@ const Sensors = () => {
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
                     Nenhum sensor encontrado
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 mb-4">
                     Ainda não há sensores cadastrados no sistema.
                   </p>
+                  <Button 
+                    onClick={() => setShowAddForm(true)}
+                    className="bg-terra-600 hover:bg-terra-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Adicionar Primeiro Sensor
+                  </Button>
                 </CardContent>
               </Card>
             )}
