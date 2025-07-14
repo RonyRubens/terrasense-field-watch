@@ -1,5 +1,5 @@
 
-import { Sprout, Thermometer, Droplets, Calendar, TrendingUp, Menu, ChevronRight, Zap, Leaf } from "lucide-react"
+import { Sprout, Thermometer, Droplets, Calendar, TrendingUp, Menu, ChevronRight, Zap, Leaf, MoreVertical, Edit, Trash2, X } from "lucide-react"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { useState } from "react"
@@ -86,6 +86,28 @@ const getProgressColor = (progress: number) => {
 
 const Crops = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null)
+  const [editingCrop, setEditingCrop] = useState<any | null>(null)
+  const [cropsList, setCropsList] = useState(cropsData)
+
+  const handleEdit = (crop: any) => {
+    setEditingCrop(crop)
+    setOpenDropdown(null)
+  }
+
+  const handleDelete = (cropId: number) => {
+    setCropsList(prev => prev.filter(c => c.id !== cropId))
+    setOpenDropdown(null)
+  }
+
+  const handleSaveEdit = (updatedCrop: any) => {
+    setCropsList(prev => prev.map(c => c.id === updatedCrop.id ? updatedCrop : c))
+    setEditingCrop(null)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingCrop(null)
+  }
 
   return (
     <SidebarProvider>
@@ -113,7 +135,7 @@ const Crops = () => {
               
               <div className="flex items-center gap-4">
                 <div className="px-4 py-2 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-full text-sm font-medium shadow-lg">
-                  {cropsData.length} Culturas Ativas
+                  {cropsList.length} Culturas Ativas
                 </div>
               </div>
             </div>
@@ -122,16 +144,48 @@ const Crops = () => {
           <main className="flex-1 p-8">
             {/* Grid de plantações */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {cropsData.map((crop) => (
+              {cropsList.map((crop) => (
                 <div 
                   key={crop.id} 
-                  className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-terra-100/50 overflow-hidden"
+                  className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-terra-100/50 overflow-visible"
                 >
                   {/* Fundo decorativo */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-terra-100/30 to-transparent rounded-full -translate-y-8 translate-x-8"></div>
                   
+                  {/* Menu de 3 pontos */}
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenDropdown(openDropdown === crop.id ? null : crop.id)}
+                        className="p-2 rounded-full bg-white shadow-lg hover:shadow-xl text-gray-600 hover:text-terra-600 transition-all duration-200 hover:scale-110"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      {openDropdown === crop.id && (
+                        <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-30">
+                          <button
+                            onClick={() => handleEdit(crop)}
+                            className="flex items-center gap-3 w-full px-4 py-3 text-left text-gray-700 hover:bg-terra-50 hover:text-terra-700 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                            <span className="font-medium">Editar</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(crop.id)}
+                            className="flex items-center gap-3 w-full px-4 py-3 text-left text-red-600 hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="font-medium">Deletar</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
                   {/* Header do card */}
-                  <div className="flex items-start justify-between mb-6 relative z-10">
+                  <div className="flex items-start justify-between mb-6 relative z-10 pr-12">
                     <div className="flex items-center gap-4">
                       <div className="w-16 h-16 bg-gradient-to-br from-terra-400 to-terra-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <Sprout className="w-8 h-8 text-white" />
@@ -240,6 +294,192 @@ const Crops = () => {
             </div>
           </main>
         </div>
+
+        {/* Modal de Edição */}
+        {editingCrop && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-terra-800">✏️ Editar Plantação</h2>
+                <button
+                  onClick={handleCancelEdit}
+                  className="p-2 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                const formData = new FormData(e.target as HTMLFormElement)
+                const updatedCrop = {
+                  ...editingCrop,
+                  name: formData.get('name') as string,
+                  area: formData.get('area') as string,
+                  plantingDate: formData.get('plantingDate') as string,
+                  expectedHarvest: formData.get('expectedHarvest') as string,
+                  stage: formData.get('stage') as string,
+                  health: formData.get('health') as string,
+                  temperature: formData.get('temperature') as string,
+                  humidity: formData.get('humidity') as string,
+                  soilMoisture: formData.get('soilMoisture') as string,
+                  productivity: formData.get('productivity') as string,
+                  waterUsage: formData.get('waterUsage') as string,
+                }
+                handleSaveEdit(updatedCrop)
+              }} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Nome</label>
+                    <input
+                      name="name"
+                      defaultValue={editingCrop.name}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Área</label>
+                    <input
+                      name="area"
+                      defaultValue={editingCrop.area}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Data de Plantio</label>
+                    <input
+                      name="plantingDate"
+                      defaultValue={editingCrop.plantingDate}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Colheita Prevista</label>
+                    <input
+                      name="expectedHarvest"
+                      defaultValue={editingCrop.expectedHarvest}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Estágio</label>
+                    <select
+                      name="stage"
+                      defaultValue={editingCrop.stage}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    >
+                      <option value="Plantio">Plantio</option>
+                      <option value="Germinação">Germinação</option>
+                      <option value="Crescimento">Crescimento</option>
+                      <option value="Desenvolvimento">Desenvolvimento</option>
+                      <option value="Floração">Floração</option>
+                      <option value="Frutificação">Frutificação</option>
+                      <option value="Maturação">Maturação</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Saúde</label>
+                    <select
+                      name="health"
+                      defaultValue={editingCrop.health}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    >
+                      <option value="Excelente">Excelente</option>
+                      <option value="Bom">Bom</option>
+                      <option value="Regular">Regular</option>
+                      <option value="Ruim">Ruim</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Temperatura</label>
+                    <input
+                      name="temperature"
+                      defaultValue={editingCrop.temperature}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Umidade</label>
+                    <input
+                      name="humidity"
+                      defaultValue={editingCrop.humidity}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Umidade do Solo</label>
+                    <input
+                      name="soilMoisture"
+                      defaultValue={editingCrop.soilMoisture}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Produtividade</label>
+                    <input
+                      name="productivity"
+                      defaultValue={editingCrop.productivity}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-terra-700 mb-2">Consumo de Água Hoje</label>
+                    <input
+                      name="waterUsage"
+                      defaultValue={editingCrop.waterUsage}
+                      className="w-full px-4 py-3 border border-terra-200 rounded-xl focus:ring-2 focus:ring-terra-500 focus:border-transparent transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-4 pt-6">
+                  <button
+                    type="button"
+                    onClick={handleCancelEdit}
+                    className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-xl hover:from-terra-600 hover:to-terra-700 transition-all font-medium shadow-lg"
+                  >
+                    Salvar Alterações
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Overlay para fechar dropdown */}
+        {openDropdown && (
+          <div 
+            className="fixed inset-0 z-10" 
+            onClick={() => setOpenDropdown(null)}
+          />
+        )}
       </div>
     </SidebarProvider>
   )
