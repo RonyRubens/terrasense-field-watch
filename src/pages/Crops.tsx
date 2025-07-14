@@ -2,7 +2,8 @@
 import { Sprout, Thermometer, Droplets, Calendar, TrendingUp, Menu, ChevronRight, Zap, Leaf, MoreVertical, Edit, Trash2, X } from "lucide-react"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { supabase } from "@/integrations/supabase/client"
 
 const cropsData = [
   {
@@ -86,27 +87,150 @@ const getProgressColor = (progress: number) => {
 
 const Crops = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [openDropdown, setOpenDropdown] = useState<number | null>(null)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [editingCrop, setEditingCrop] = useState<any | null>(null)
-  const [cropsList, setCropsList] = useState(cropsData)
+  const [cropsList, setCropsList] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  // Buscar plantações do banco de dados
+  useEffect(() => {
+    fetchCrops()
+  }, [])
+
+  const fetchCrops = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('plantacoes')
+        .select('*')
+        .order('nome', { ascending: true })
+
+      if (error) {
+        console.error('Erro ao buscar plantações:', error)
+        // Se der erro, usar dados fictícios
+        setCropsList(cropsData)
+      } else {
+        // Mapear dados do banco para o formato da interface
+        const mappedCrops = data.map(crop => ({
+          id: crop.id,
+          name: crop.nome || 'Sem nome',
+          area: crop.area || 'N/A',
+          plantingDate: crop.plantio || 'N/A',
+          expectedHarvest: crop.colheita || 'N/A',
+          stage: crop.estagio || 'Plantio',
+          health: crop.status || 'Bom',
+          temperature: crop.temperatura || 'N/A',
+          humidity: crop.umidade || 'N/A',
+          soilMoisture: crop.solo || 'N/A',
+          productivity: crop.produtividade || 'N/A',
+          waterUsage: crop.agua_hoje || 'N/A',
+          progress: 50 // Valor padrão para progresso
+        }))
+        
+        setCropsList(mappedCrops.length > 0 ? mappedCrops : cropsData)
+      }
+    } catch (error) {
+      console.error('Erro ao conectar com banco:', error)
+      setCropsList(cropsData)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleEdit = (crop: any) => {
     setEditingCrop(crop)
     setOpenDropdown(null)
   }
 
-  const handleDelete = (cropId: number) => {
-    setCropsList(prev => prev.filter(c => c.id !== cropId))
+  const handleDelete = async (cropId: string) => {
+    if (!confirm('Tem certeza que deseja deletar esta plantação?')) return
+
+    try {
+      // Tentar deletar do banco de dados
+      const { error } = await supabase
+        .from('plantacoes')
+        .delete()
+        .eq('id', cropId)
+
+      if (error) {
+        console.error('Erro ao deletar:', error)
+        alert('Erro ao deletar plantação')
+        return
+      }
+
+      // Atualizar lista local
+      setCropsList(prev => prev.filter(c => c.id !== cropId))
+      alert('Plantação deletada com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar:', error)
+      // Se der erro, deletar apenas localmente
+      setCropsList(prev => prev.filter(c => c.id !== cropId))
+    }
     setOpenDropdown(null)
   }
 
-  const handleSaveEdit = (updatedCrop: any) => {
-    setCropsList(prev => prev.map(c => c.id === updatedCrop.id ? updatedCrop : c))
-    setEditingCrop(null)
+  const handleSaveEdit = async (updatedCrop: any) => {
+    setSaving(true)
+    try {
+      // Mapear dados para o formato do banco
+      const dbData = {
+        nome: updatedCrop.name,
+        area: updatedCrop.area,
+        plantio: updatedCrop.plantingDate,
+        colheita: updatedCrop.expectedHarvest,
+        estagio: updatedCrop.stage,
+        status: updatedCrop.health,
+        temperatura: updatedCrop.temperature,
+        umidade: updatedCrop.humidity,
+        solo: updatedCrop.soilMoisture,
+        produtividade: updatedCrop.productivity,
+        agua_hoje: updatedCrop.waterUsage,
+      }
+
+      // Atualizar no banco de dados
+      const { error } = await supabase
+        .from('plantacoes')
+        .update(dbData)
+        .eq('id', updatedCrop.id)
+
+      if (error) {
+        console.error('Erro ao salvar:', error)
+        alert('Erro ao salvar alterações')
+        return
+      }
+
+      // Atualizar lista local
+      setCropsList(prev => prev.map(c => c.id === updatedCrop.id ? updatedCrop : c))
+      setEditingCrop(null)
+      alert('Plantação atualizada com sucesso!')
+    } catch (error) {
+      console.error('Erro ao salvar:', error)
+      // Se der erro, atualizar apenas localmente
+      setCropsList(prev => prev.map(c => c.id === updatedCrop.id ? updatedCrop : c))
+      setEditingCrop(null)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCancelEdit = () => {
     setEditingCrop(null)
+  }
+
+  if (loading) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full" style={{background: 'linear-gradient(135deg, hsl(120 20% 98%) 0%, hsl(120 15% 95%) 100%)'}}>
+          <AppSidebar />
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-terra-600 mx-auto mb-4"></div>
+              <p className="text-terra-600 font-medium">Carregando plantações...</p>
+            </div>
+          </div>
+        </div>
+      </SidebarProvider>
+    )
   }
 
   return (
@@ -463,9 +587,10 @@ const Crops = () => {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-xl hover:from-terra-600 hover:to-terra-700 transition-all font-medium shadow-lg"
+                    disabled={saving}
+                    className="flex-1 px-6 py-3 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-xl hover:from-terra-600 hover:to-terra-700 transition-all font-medium shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Salvar Alterações
+                    {saving ? 'Salvando...' : 'Salvar Alterações'}
                   </button>
                 </div>
               </form>
