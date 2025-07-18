@@ -9,7 +9,8 @@ import {
   AlertTriangle,
   Settings,
   Satellite,
-  Building
+  Building,
+  PieChart
 } from "lucide-react"
 import { NavLink, useLocation } from "react-router-dom"
 
@@ -29,9 +30,10 @@ import {
 } from "@/components/ui/sidebar"
 
 const items = [
-  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Início", url: "/", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: BarChart3 },
   { title: "Mapa das Culturas", url: "/map", icon: MapPin },
-  { title: "Análises", url: "/analytics", icon: BarChart3 },
+  { title: "Análises", url: "/analytics", icon: PieChart },
   { title: "Plantações", url: "/crops", icon: Sprout },
   { title: "Sensores", url: "/sensors", icon: Satellite },
   { title: "Clima", url: "/weather", icon: Thermometer },
