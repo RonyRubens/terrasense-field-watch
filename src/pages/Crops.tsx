@@ -4,6 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
 import { useState, useEffect } from "react"
 import { supabase } from "@/integrations/supabase/client"
+import { useIsMobile } from "@/hooks/use-mobile"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "@/components/ui/drawer"
 
 const cropsData = [
   {
@@ -92,6 +94,7 @@ const Crops = () => {
   const [cropsList, setCropsList] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const isMobile = useIsMobile()
 
   // Buscar plantações do banco de dados
   useEffect(() => {
@@ -239,39 +242,40 @@ const Crops = () => {
         <AppSidebar />
         
         <div className="flex-1 flex flex-col">
-          {/* Header customizado */}
-          <header className="h-20 bg-white/80 backdrop-blur-lg border-b border-terra-200/50 flex items-center px-8 sticky top-0 z-10 shadow-sm">
+          {/* Header customizado - Otimizado para mobile */}
+          <header className="h-16 sm:h-20 bg-white/80 backdrop-blur-lg border-b border-terra-200/50 flex items-center px-4 sm:px-8 sticky top-0 z-10 shadow-sm">
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3 sm:gap-6">
                 <button 
                   onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                   className="p-2 rounded-xl bg-terra-100 hover:bg-terra-200 text-terra-700 transition-all duration-200 hover:scale-105"
                 >
-                  <Menu className="w-5 h-5" />
+                  <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-terra-700 to-terra-500 bg-clip-text text-transparent">
+                  <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-terra-700 to-terra-500 bg-clip-text text-transparent">
                     🌱 Plantações
                   </h1>
-                  <p className="text-sm text-terra-600 mt-1">Monitoramento inteligente de culturas</p>
+                  <p className="text-xs sm:text-sm text-terra-600 mt-1 hidden sm:block">Monitoramento inteligente de culturas</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
-                <div className="px-4 py-2 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-full text-sm font-medium shadow-lg">
-                  {cropsList.length} Culturas Ativas
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="px-2 sm:px-4 py-1 sm:py-2 bg-gradient-to-r from-terra-500 to-terra-600 text-white rounded-full text-xs sm:text-sm font-medium shadow-lg">
+                  <span className="hidden sm:inline">{cropsList.length} Culturas Ativas</span>
+                  <span className="sm:hidden">{cropsList.length}</span>
                 </div>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 p-8">
-            {/* Grid de plantações */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <main className="flex-1 p-4 sm:p-6 lg:p-8">
+            {/* Grid de plantações - Otimizado para mobile */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
               {cropsList.map((crop) => (
                 <div 
                   key={crop.id} 
-                  className="group relative bg-white rounded-3xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-terra-100/50 overflow-visible"
+                  className="group relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-terra-100/50 overflow-visible"
                 >
                   {/* Fundo decorativo */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-terra-100/30 to-transparent rounded-full -translate-y-8 translate-x-8"></div>
@@ -308,20 +312,20 @@ const Crops = () => {
                     </div>
                   </div>
                   
-                  {/* Header do card */}
-                  <div className="flex items-start justify-between mb-6 relative z-10 pr-12">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-terra-400 to-terra-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <Sprout className="w-8 h-8 text-white" />
+                  {/* Header do card - Otimizado para mobile */}
+                  <div className="flex items-start justify-between mb-4 sm:mb-6 relative z-10 pr-8 sm:pr-12">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-terra-400 to-terra-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <Sprout className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-terra-800 mb-1">{crop.name}</h3>
-                        <p className="text-terra-600 font-medium">📏 {crop.area}</p>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base sm:text-xl font-bold text-terra-800 mb-1 leading-tight truncate">{crop.name}</h3>
+                        <p className="text-sm sm:text-base text-terra-600 font-medium">📏 {crop.area}</p>
                       </div>
                     </div>
                     
-                    {/* Badge de saúde */}
-                    <div className={`px-4 py-2 rounded-full text-sm font-bold shadow-lg ${getHealthColor(crop.health)}`}>
+                    {/* Badge de saúde - Responsivo */}
+                    <div className={`px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg ${getHealthColor(crop.health)} whitespace-nowrap`}>
                       {crop.health}
                     </div>
                   </div>
@@ -342,71 +346,71 @@ const Crops = () => {
                     </div>
                   </div>
 
-                  {/* Informações principais */}
-                  <div className="grid grid-cols-2 gap-6 mb-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 bg-terra-50 rounded-xl">
-                        <Calendar className="w-5 h-5 text-terra-600" />
-                        <div>
+                  {/* Informações principais - Otimizado para mobile */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-6">
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-terra-50 rounded-lg sm:rounded-xl">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-terra-600 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-terra-600 uppercase tracking-wide">Plantio</p>
-                          <p className="text-sm font-bold text-terra-800">{crop.plantingDate}</p>
+                          <p className="text-xs sm:text-sm font-bold text-terra-800 truncate">{crop.plantingDate}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-terra-50 rounded-xl">
-                        <Calendar className="w-5 h-5 text-terra-600" />
-                        <div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-terra-50 rounded-lg sm:rounded-xl">
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-terra-600 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-terra-600 uppercase tracking-wide">Colheita</p>
-                          <p className="text-sm font-bold text-terra-800">{crop.expectedHarvest}</p>
+                          <p className="text-xs sm:text-sm font-bold text-terra-800 truncate">{crop.expectedHarvest}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                        <TrendingUp className="w-5 h-5 text-blue-600" />
-                        <div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg sm:rounded-xl">
+                        <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">Estágio</p>
-                          <p className="text-sm font-bold text-blue-800">{crop.stage}</p>
+                          <p className="text-xs sm:text-sm font-bold text-blue-800 truncate">{crop.stage}</p>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-xl">
-                        <Thermometer className="w-5 h-5 text-red-500" />
-                        <div>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-lg sm:rounded-xl">
+                        <Thermometer className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-red-600 uppercase tracking-wide">Temperatura</p>
-                          <p className="text-sm font-bold text-red-800">{crop.temperature}</p>
+                          <p className="text-xs sm:text-sm font-bold text-red-800 truncate">{crop.temperature}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl">
-                        <Droplets className="w-5 h-5 text-blue-500" />
-                        <div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg sm:rounded-xl">
+                        <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">Umidade</p>
-                          <p className="text-sm font-bold text-blue-800">{crop.humidity}</p>
+                          <p className="text-xs sm:text-sm font-bold text-blue-800 truncate">{crop.humidity}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-terra-50 to-terra-100 rounded-xl">
-                        <Leaf className="w-5 h-5 text-terra-500" />
-                        <div>
+                      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-gradient-to-r from-terra-50 to-terra-100 rounded-lg sm:rounded-xl">
+                        <Leaf className="w-4 h-4 sm:w-5 sm:h-5 text-terra-500 flex-shrink-0" />
+                        <div className="min-w-0">
                           <p className="text-xs font-medium text-terra-600 uppercase tracking-wide">Solo</p>
-                          <p className="text-sm font-bold text-terra-800">{crop.soilMoisture}</p>
+                          <p className="text-xs sm:text-sm font-bold text-terra-800 truncate">{crop.soilMoisture}</p>
                         </div>
                       </div>
                     </div>
                   </div>
                   
-                  {/* Footer com métricas */}
-                  <div className="border-t border-terra-100 pt-6 flex justify-between items-center">
+                  {/* Footer com métricas - Otimizado para mobile */}
+                  <div className="border-t border-terra-100 pt-3 sm:pt-6 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center">
                     <div className="flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-yellow-500" />
-                      <div>
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 flex-shrink-0" />
+                      <div className="min-w-0">
                         <p className="text-xs font-medium text-terra-600 uppercase tracking-wide">Produtividade</p>
-                        <p className="text-lg font-bold text-terra-700">{crop.productivity}</p>
+                        <p className="text-base sm:text-lg font-bold text-terra-700 truncate">{crop.productivity}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Droplets className="w-5 h-5 text-blue-500" />
-                      <div>
+                      <Droplets className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 flex-shrink-0" />
+                      <div className="min-w-0">
                         <p className="text-xs font-medium text-blue-600 uppercase tracking-wide">Água Hoje</p>
-                        <p className="text-lg font-bold text-blue-700">{crop.waterUsage}</p>
+                        <p className="text-base sm:text-lg font-bold text-blue-700 truncate">{crop.waterUsage}</p>
                       </div>
                     </div>
                   </div>
